@@ -16,23 +16,23 @@ namespace Playground
                     char[] values = roman.ToArray();
                     if (values.Length > 1) {
                         for (int i = 1; i < values.Length; i++) {
-                            if (RomanNumeralValues.ExtendedRomanNumerals[values[i - 1]] >= RomanNumeralValues.ExtendedRomanNumerals[values[i]]
+                            if (RomanNumeralValues.RomanNumerals[values[i - 1]] >= RomanNumeralValues.RomanNumerals[values[i]]
                                 || (values[i - 1].Equals('D') && values[i].Equals('M'))
                                 || (values[i - 1].Equals('d') && values[i].Equals('m'))) {
-                                result += RomanNumeralValues.ExtendedRomanNumerals[values[i - 1]];
+                                result += RomanNumeralValues.RomanNumerals[values[i - 1]];
                                 if (i == values.Length - 1) {
-                                    result += RomanNumeralValues.ExtendedRomanNumerals[values[i]];
+                                    result += RomanNumeralValues.RomanNumerals[values[i]];
                                 }
                             } else {
-                                result += (RomanNumeralValues.ExtendedRomanNumerals[values[i]] - RomanNumeralValues.ExtendedRomanNumerals[values[i - 1]]);
+                                result += (RomanNumeralValues.RomanNumerals[values[i]] - RomanNumeralValues.RomanNumerals[values[i - 1]]);
                                 i++;
                                 if (i + 1 == values.Length) {
-                                    result += RomanNumeralValues.ExtendedRomanNumerals[values[i]];
+                                    result += RomanNumeralValues.RomanNumerals[values[i]];
                                 }
                             }
                         }
                     } else {
-                        result += RomanNumeralValues.ExtendedRomanNumerals[values[0]];
+                        result += RomanNumeralValues.RomanNumerals[values[0]];
                     }
                 }
             }

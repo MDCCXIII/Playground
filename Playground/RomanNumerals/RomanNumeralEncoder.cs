@@ -22,7 +22,7 @@ namespace Playground
 
         private static string ShortHand(string result)
         {
-            foreach(KeyValuePair<string, string> kvp in RomanNumeralValues.ExtendedShortHands) {
+            foreach(KeyValuePair<string, string> kvp in RomanNumeralValues.ShortHands) {
                 if (result.Contains(kvp.Key)) {
                     result = result.Replace(kvp.Key, kvp.Value);
                 }

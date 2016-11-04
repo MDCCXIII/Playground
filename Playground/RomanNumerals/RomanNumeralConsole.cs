@@ -9,6 +9,7 @@ namespace Playground
         public RomanNumeralConsole()
         {
             string lastCommand = "";
+            Console.WriteLine(RomanNumeralValues.UsingMessage);
             Console.WriteLine("Enter a Roman number or a number. ");
             while (!lastCommand.ToLower().Equals("exit")) {
                 lastCommand = ExecuteUserInterface();
@@ -27,7 +28,7 @@ namespace Playground
 
         private static void ParseCommand(string lastCommand)
         {
-            if (lastCommand.StartsWith("/help") || lastCommand.StartsWith("/?")) {
+            if (lastCommand.StartsWith("/help") || lastCommand.StartsWith("/?") || lastCommand.StartsWith("%")) {
                 NavOptions(lastCommand);
             } else if (lastCommand.StartsWith("/") || lastCommand.ToLower().Contains("help") || lastCommand.ToLower().Contains("?")) {
                 Console.WriteLine("Proper usage is '/help [command]' or '/? [command]'.");
@@ -38,7 +39,7 @@ namespace Playground
                 if (Int32.TryParse(lastCommand, out number)) {
                     Console.WriteLine(RomanNumeralEncoder.NumberToRomanNumeral(number));
                 } else {
-                    Console.WriteLine(RomanNumeralDecoder.remake(lastCommand));
+                    Console.WriteLine(RomanNumeralDecoder.RomanNumeralToNumber(lastCommand));
                 }
 
             }
@@ -47,13 +48,25 @@ namespace Playground
         private static void NavOptions(string command)
         {
             command = command.Replace("/help", "").Replace("/?", "").TrimStart();
-            switch (command) {
+            switch (command.ToLower()) {
                 case "":
                     PrintRomanNumeralChart();
                     break;
                 case "commands":
                     Console.WriteLine("Sorry, at this time there are no valid help options.");
                     Console.WriteLine("A reference list of Roman numeral characters and thier values may be found by typing '/help' or '/?'.");
+                    break;
+                case "%em on":
+                case "%extended":
+                case "%extended on":
+                case "%extendedmode on":
+                    Console.WriteLine(RomanNumeralValues.SetRomanNumerals(true));
+                    break;
+                case "%em off":
+                case "%standard":
+                case "%extended off":
+                case "%extendedmode off":
+                    Console.WriteLine(RomanNumeralValues.SetRomanNumerals(false));
                     break;
                 default:
                     Console.WriteLine("Error: '" + command + "' is not a command.");
@@ -65,7 +78,7 @@ namespace Playground
         private static void PrintRomanNumeralChart()
         {
             Console.WriteLine("Valid Roman numerals and their equivalent values are as follows: ");
-            foreach (KeyValuePair<char, int> kvp in RomanNumeralValues.ExtendedRomanNumerals.OrderBy(pair => pair.Value)) {
+            foreach (KeyValuePair<char, int> kvp in RomanNumeralValues.RomanNumerals.OrderBy(pair => pair.Value)) {
                 Console.WriteLine(kvp.Key + " = " + kvp.Value);
             }
         }
