@@ -61,7 +61,7 @@ namespace Playground
             { "IIII", "IV" }
         };
 
-        private static Dictionary<T, V> AddRange<T, V>(Dictionary<T, V> target, Dictionary<T, V> source)
+        private static Dictionary<T, V> Copy<T, V>(Dictionary<T, V> target, Dictionary<T, V> source)
         {
             if (target == null)
                 target = new Dictionary<T, V>();
@@ -72,8 +72,8 @@ namespace Playground
             return target;
         }
 
-        public static Dictionary<char, int> RomanNumerals = AddRange(RomanNumerals, StandardRomanNumerals);
-        public static Dictionary<string, string> ShortHands = AddRange(ShortHands, StandardShortHands);
+        public static Dictionary<char, int> RomanNumerals = Copy(RomanNumerals, StandardRomanNumerals);
+        public static Dictionary<string, string> ShortHands = Copy(ShortHands, StandardShortHands);
         public static string ValidRomanNumerals = StandardRomanCharacters;
         public static string UsingMessage = StandardMessage;
 
