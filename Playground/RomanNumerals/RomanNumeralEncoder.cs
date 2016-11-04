@@ -17,10 +17,10 @@ namespace Playground
                 }
             }
 
-            return ShortHand(result);
+            return ConvertToShortHand(result);
         }
 
-        private static string ShortHand(string result)
+        private static string ConvertToShortHand(string result)
         {
             foreach(KeyValuePair<string, string> kvp in RomanNumeralValues.ShortHands) {
                 if (result.Contains(kvp.Key)) {
