@@ -5,19 +5,6 @@ namespace Playground
 {
     public class RomanNumeralValues
     {
-        
-
-        private static Dictionary<T, V> AddRange<T, V>(Dictionary<T, V> target, Dictionary<T, V> source)
-        {
-            if (target == null)
-                target = new Dictionary<T, V>();
-            if (source == null)
-                throw new ArgumentNullException("source");
-            foreach (var element in source)
-                target.Add(element.Key, element.Value);
-            return target;
-        }
-
         private const string StandardMessage = "Using standard Roman numerals.";
         private const string ExtendedMessage = "Using extended Roman numerals.";
 
@@ -74,13 +61,23 @@ namespace Playground
             { "IIII", "IV" }
         };
 
+        private static Dictionary<T, V> AddRange<T, V>(Dictionary<T, V> target, Dictionary<T, V> source)
+        {
+            if (target == null)
+                target = new Dictionary<T, V>();
+            if (source == null)
+                throw new ArgumentNullException("source");
+            foreach (var element in source)
+                target.Add(element.Key, element.Value);
+            return target;
+        }
+
         public static Dictionary<char, int> RomanNumerals = AddRange(RomanNumerals, StandardRomanNumerals);
         public static Dictionary<string, string> ShortHands = AddRange(ShortHands, StandardShortHands);
         public static string ValidRomanNumerals = StandardRomanCharacters;
         public static string UsingMessage = StandardMessage;
 
-        public static string SetRomanNumerals(bool isExtended)
-        {
+        public static string SetRomanNumerals(bool isExtended) {
             string result = "";
             if (isExtended) {
                 RomanNumerals = ExtendedRomanNumerals;
