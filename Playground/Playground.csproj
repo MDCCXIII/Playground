@@ -43,9 +43,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Depricated.cs" />
+    <Compile Include="RomanNumerals\RomanNumeralConsole.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RomanNumeral.cs" />
+    <Compile Include="RomanNumerals\RomanNumeralDecoder.cs" />
+    <Compile Include="RomanNumerals\RomanNumeralEncoder.cs" />
+    <Compile Include="RomanNumerals\RomanNumeralValues.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
