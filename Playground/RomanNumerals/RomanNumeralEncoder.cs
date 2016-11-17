@@ -9,8 +9,10 @@ namespace Playground
         {
             string result = "";
             int remainder = n;
-            foreach(KeyValuePair<char, int> kvp in RomanNumeralValues.RomanNumerals) {
-                result += new string(kvp.Key, remainder / kvp.Value);
+            int characterCount;
+            foreach (KeyValuePair<char, int> kvp in RomanNumeralValues.RomanNumerals) {
+                characterCount = remainder / kvp.Value;
+                result += new string(kvp.Key, characterCount);
                 remainder = n % kvp.Value;
                 if(remainder == 0) {
                     break;
