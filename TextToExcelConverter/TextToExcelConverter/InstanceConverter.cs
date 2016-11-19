@@ -21,8 +21,9 @@ namespace TextToExcelConverter
         int totalLines = 0;
         List<string> file = new List<string>();
         Form1 Form1;
+        bool cancel = false;
 
-        public InstanceConverter(DragEventArgs e, Form1 Form1)
+        public InstanceConverter(DragEventArgs e, Form1 Form1, System.ComponentModel.DoWorkEventArgs dwea)
         {
             try {
                 this.Form1 = Form1;
@@ -30,17 +31,24 @@ namespace TextToExcelConverter
                 if (e.Data.GetDataPresent(DataFormats.FileDrop)) {
                     string[] filePaths = (string[])(e.Data.GetData(DataFormats.FileDrop));
                     foreach (string filePath in filePaths) {
-                        if (Exists(filePath)) {
-                            CreateNewWorkBook();
-                            SetFilePath(filePath);
-                            if (IsTextFile(filePath)) {
-                                SetFileName(filePath);
-                                if(!IsFileinUse(Directory.GetCurrentDirectory() + "\\" + fileName + ".xlsx")) {
-                                    SetTotalLines();
-                                    ParseFile();
-                                    ConvertFile();
+                        if (!CancellationPending()) {
+                            if (Exists(filePath)) {
+                                CreateNewWorkBook();
+                                SetFilePath(filePath);
+                                if (IsTextFile(filePath)) {
+                                    SetFileName(filePath);
+                                    if (!IsFileinUse(Directory.GetCurrentDirectory() + "\\" + fileName + ".xlsx")) {
+                                        if (!CancellationPending()) {
+                                            SetTotalLines();
+                                        }
+                                        if (!CancellationPending()) {
+                                            ParseFile();
+                                        }
+                                        if (!CancellationPending()) {
+                                            ConvertFile();
+                                        }
+                                    }
                                 }
-                               
                             }
                         }
                     }
@@ -49,6 +57,15 @@ namespace TextToExcelConverter
             catch (Exception ex) {
                 Debug.WriteLine(ex.Message);
             }
+        }
+
+        private bool CancellationPending()
+        {
+             Form1.GetCancellationPending();
+            if (!cancel) {
+                cancel = Form1.GetCancellationPending();
+            }
+            return cancel;
         }
 
         private void Init()
@@ -65,7 +82,7 @@ namespace TextToExcelConverter
             fileName = "";
             columns.Clear();
             totalLines = 0;
-            //Form1.SetProgressBarValue(0);
+            Form1.SetProgressBarValue(0);
         }
 
         private static bool Exists(string filePath)
@@ -138,21 +155,29 @@ namespace TextToExcelConverter
         private void ConvertFile()
         {
             if (file.Count > 0) {
-                if (Form1.GetConversionOptionSelectedIndex() == 0 || Form1.GetConversionOptionSelectedIndex() == 1) {
-                    //Form1.SetProgressBarValue(0);
-                    CreateOrActivatWorkSheet("Data");
-                    TextToExcel();
+                if (!CancellationPending()) {
+                    if (Form1.GetConversionOptionSelectedIndex() == 0 || Form1.GetConversionOptionSelectedIndex() == 1) {
+                        Form1.SetProgressBarValue(0);
+                        CreateOrActivatWorkSheet("Data");
+                        TextToExcel();
+                    }
                 }
-                if (Form1.GetConversionOptionSelectedIndex() == 0 || Form1.GetConversionOptionSelectedIndex() == 2) {
-                    //Form1.SetProgressBarValue(0);
-                    CreateOrActivatWorkSheet("Usage Statistics");
-                    FieldUsage();
+                if (!CancellationPending()) {
+                    if (Form1.GetConversionOptionSelectedIndex() == 0 || Form1.GetConversionOptionSelectedIndex() == 2) {
+                        Form1.SetProgressBarValue(0);
+                        CreateOrActivatWorkSheet("Usage Statistics");
+                        FieldUsage();
 
+                    }
                 }
-                //Form1.SetProgressBarValue(0);
-                CreateOrActivatWorkSheet("Service Call Time Log");
-                TimeLogs();
-                SaveExcelFile();
+                if (!CancellationPending()) {
+                    Form1.SetProgressBarValue(0);
+                    CreateOrActivatWorkSheet("Service Call Time Log");
+                    TimeLogs();
+                }
+                if (!CancellationPending()) {
+                    SaveExcelFile();
+                }
             }
         }
 
@@ -175,11 +200,13 @@ namespace TextToExcelConverter
             string newLine;
             Form1.setInfoLabelText("Converting Data for File: " + fileName + ".txt");
             foreach (string line in file) {
-                lineNumber++;
-                double progress = ((double)lineNumber / (double)totalLines) * 100;
-                //Report(progress);
-                newLine = line.Trim();
-                tff.formatText(ref rowNumber, line, this);
+                if (!CancellationPending()) {
+                    lineNumber++;
+                    double progress = ((double)lineNumber / (double)totalLines) * 100;
+                    Report(progress);
+                    newLine = line.Trim();
+                    tff.formatText(ref rowNumber, line, this);
+                }
             }
 
         }
@@ -193,14 +220,16 @@ namespace TextToExcelConverter
             string previousLine = null;
             Form1.setInfoLabelText("Generating Usage Statistics for File: " + fileName + ".txt");
             foreach (string line in file) {
-                if (previousLine != null) {
-                    lineNumber++;
-                    double progress = ((double)lineNumber / (double)totalLines) * 100;
-                    //Report(progress);
-                    newLine = line.Trim();
-                    stats.GenerateStatistics(ref rowNumber, line, this);
+                if (!CancellationPending()) {
+                    if (previousLine != null) {
+                        lineNumber++;
+                        double progress = ((double)lineNumber / (double)totalLines) * 100;
+                        Report(progress);
+                        newLine = line.Trim();
+                        stats.GenerateStatistics(ref rowNumber, line, this);
+                    }
+                    previousLine = line;
                 }
-                previousLine = line;
             }
             stats.OutputToExcel(this);
         }
@@ -214,14 +243,16 @@ namespace TextToExcelConverter
             string previousLine = null;
             Form1.setInfoLabelText("Generating Time Logs for File: " + fileName + ".txt");
             foreach (string line in file) {
-                if (previousLine != null) {
-                    lineNumber++;
-                    double progress = ((double)lineNumber / (double)totalLines) * 100;
-                    //Report(progress);
-                    newLine = line.Trim();
-                    tl.GenerateTimeLog(ref rowNumber, line, this);
+                if (!CancellationPending()) {
+                    if (previousLine != null) {
+                        lineNumber++;
+                        double progress = ((double)lineNumber / (double)totalLines) * 100;
+                        Report(progress);
+                        newLine = line.Trim();
+                        tl.GenerateTimeLog(ref rowNumber, line, this);
+                    }
+                    previousLine = line;
                 }
-                previousLine = line;
             }
         }
 
@@ -229,26 +260,33 @@ namespace TextToExcelConverter
         {
             int attempt = 0;
             bool failed = false;
-            do {
-                try {
-                    attempt++;
-                    wb.SaveAs(Directory.GetCurrentDirectory() + "\\" + fileName + ".xlsx");
-                    failed = false;
+            if (!CancellationPending()) {
+                do {
+                    if (!CancellationPending()) {
+                        try {
+                            attempt++;
+                            wb.SaveAs(Directory.GetCurrentDirectory() + "\\" + fileName + ".xlsx");
+                            failed = false;
+                        }
+                        catch (System.Runtime.InteropServices.COMException) {
+                            failed = true;
+                        }
+                        System.Threading.Thread.Sleep(10);
+                    }
+                } while (failed && attempt > 3);
+                if (failed) {
+                    Form1.SetProgressBarValue(0);
+                    Form1.setInfoLabelText("Failed to save the converted file.");
+                } else {
+                    Form1.SetProgressBarValue(100);
+                    Form1.setInfoLabelText("Conversion Complete");
                 }
-                catch (System.Runtime.InteropServices.COMException) {
-                    failed = true;
-                }
-                System.Threading.Thread.Sleep(10);
-            } while (failed && attempt > 3);
-            if (failed) {
-                //Form1.SetProgressBarValue(0);
-                Form1.setInfoLabelText("Failed to save the converted file.");
-            } else {
-                //Form1.SetProgressBarValue(100);
-                Form1.setInfoLabelText("Conversion Complete");
             }
-            Cleanup();
-
+            if (!CancellationPending()) {
+                Cleanup(true);
+            } else {
+                Cleanup(false);
+            }
         }
 
         private bool ExistOrCreate(string wsName)
@@ -281,7 +319,7 @@ namespace TextToExcelConverter
 
         }
 
-        public void Cleanup()
+        public void Cleanup(bool save)
         {
             try {
                 GC.Collect();
@@ -290,7 +328,7 @@ namespace TextToExcelConverter
                 Marshal.FinalReleaseComObject(rng);
                 Marshal.FinalReleaseComObject(ws);
 
-                wb.Close(Type.Missing, Type.Missing, Type.Missing);
+                wb.Close(save, Type.Missing, Type.Missing);
                 Marshal.FinalReleaseComObject(wb);
 
                 xlApp.Quit();

@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using Excel = Microsoft.Office.Interop.Excel;
 
 namespace TextToExcelConverter
 {
@@ -24,31 +20,11 @@ namespace TextToExcelConverter
 
         InstanceConverter ic = null;
         DragEventArgs DEA = null;
+
         private void Form1_DragDrop(object sender, DragEventArgs e)
         {
             DEA = e;
             backgroundWorker1.RunWorkerAsync();
-        }
-
-        protected virtual bool IsFileinUse(string file)
-        {
-            bool result = false;
-            Stream s = null;
-            try {
-                s = File.Open(file, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
-            }
-            catch (IOException) {
-                //the file is unavailable because it is:
-                //still being written to
-                //or being processed by another thread
-                //or does not exist (has already been processed)
-                result = true;
-            }
-            finally {
-                if (s != null)
-                    s.Close();
-            }
-            return result;
         }
         
         private void Form1_DragEnter(object sender, DragEventArgs e)
@@ -62,7 +38,7 @@ namespace TextToExcelConverter
         
         private void Form1_Load(object sender, EventArgs e)
         {
-            ConvertOptions.SelectedIndex = 0;
+            convertOptions.SelectedIndex = 0;
             setInfoLabelText("");
 
         }
@@ -75,50 +51,102 @@ namespace TextToExcelConverter
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             if(ic != null) {
-                ic.Cleanup();
+                ic.Cleanup(false);
             }
             
         }
 
-
-
+        delegate void SetTextCallback(string text);
+        private void ThreadSafeSetInfoLabelText(string text)
+        {
+            this.infoLabel.Text = text;
+        }
         public void setInfoLabelText(string text)
         {
-            infoLabel.Text = text;
+            if (infoLabel.InvokeRequired) {
+                SetTextCallback d = new SetTextCallback(ThreadSafeSetInfoLabelText);
+                this.Invoke(d, new object[] { text });
+            } else {
+                ThreadSafeSetInfoLabelText(text);
+            }
+            
         }
 
-        public void SetProgressBarValue(int value)
+        delegate void SetProgressCallback(int value);
+        private void ThreadSafeSetProgressBarValue(int value)
         {
             progressBar1.Value = value;
         }
+        public void SetProgressBarValue(int value)
+        {
+            if (progressBar1.InvokeRequired) {
+                SetProgressCallback d = new SetProgressCallback(ThreadSafeSetProgressBarValue);
+                this.Invoke(d, new object[] { value });
+            } else {
+                ThreadSafeSetProgressBarValue(value);
+            }
+        }
 
+        delegate int SetOptionSelectedCallback();
+        private int ThreadSafeGetConversionOptionSelectedIndex()
+        {
+            return convertOptions.SelectedIndex;
+        }
         public int GetConversionOptionSelectedIndex()
         {
-            return ConvertOptions.SelectedIndex;
+            if (convertOptions.InvokeRequired) {
+                SetOptionSelectedCallback d = new SetOptionSelectedCallback(ThreadSafeGetConversionOptionSelectedIndex);
+                return (int)this.Invoke(d);
+            } else {
+                return ThreadSafeGetConversionOptionSelectedIndex();
+            }
+        }
+
+        delegate bool SetCancellationPendingCallback();
+        private bool ThreadSafeGetCancellationPending()
+        {
+            return backgroundWorker1.CancellationPending;
+        }
+        public bool GetCancellationPending()
+        {
+            SetCancellationPendingCallback d = new SetCancellationPendingCallback(ThreadSafeGetCancellationPending);
+                return (bool)this.Invoke(d);
         }
 
         private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             if (DEA != null) {
-                cancel.Visible = true;
-                cancel.Enabled = true;
-                progressBar1.Visible = true;
-                ic = new InstanceConverter(DEA, this);
+                ic = new InstanceConverter(DEA, this, e);
+                if (backgroundWorker1.CancellationPending) {
+                    e.Cancel = true;
+                }
             }
         }
 
         private void cancel_Click(object sender, EventArgs e)
         {
             backgroundWorker1.CancelAsync();
-            progressBar1.Visible = false;
-            setInfoLabelText("Conversion Cancelled.");
-            cancel.Visible = false;
-            cancel.Enabled = false;
+            if (backgroundWorker1.CancellationPending) {
+                setInfoLabelText("Cancelling conversion...");
+            }
         }
 
         private void backgroundWorker1_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
         {
-            SetProgressBarValue(e.ProgressPercentage);
+            //SetProgressBarValue(e.ProgressPercentage);
+            Debug.WriteLine(e);
+        }
+
+        private void backgroundWorker1_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+            if (e.Cancelled) {
+                setInfoLabelText("Conversion Cancelled.");
+                SetProgressBarValue(100);
+            } else if (e.Error != null) {
+                setInfoLabelText("There was an error during the conversion.");
+            } else {
+                setInfoLabelText("Conversion Complete.");
+            }
         }
     }
 }

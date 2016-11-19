@@ -30,8 +30,8 @@
             this.label1 = new System.Windows.Forms.Label();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.button1 = new System.Windows.Forms.Button();
-            this.label2 = new System.Windows.Forms.Label();
-            this.ConvertOptions = new System.Windows.Forms.ComboBox();
+            this.infoLabel = new System.Windows.Forms.Label();
+            this.convertOptions = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.cancel = new System.Windows.Forms.Button();
@@ -63,26 +63,26 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // label2
+            // infoLabel
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 79);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(35, 13);
-            this.label2.TabIndex = 3;
-            this.label2.Text = "label2";
+            this.infoLabel.AutoSize = true;
+            this.infoLabel.Location = new System.Drawing.Point(12, 79);
+            this.infoLabel.Name = "infoLabel";
+            this.infoLabel.Size = new System.Drawing.Size(35, 13);
+            this.infoLabel.TabIndex = 3;
+            this.infoLabel.Text = "label2";
             // 
-            // ConvertOptions
+            // convertOptions
             // 
-            this.ConvertOptions.FormattingEnabled = true;
-            this.ConvertOptions.Items.AddRange(new object[] {
+            this.convertOptions.FormattingEnabled = true;
+            this.convertOptions.Items.AddRange(new object[] {
             "All",
             "Data",
             "Usage Statistics"});
-            this.ConvertOptions.Location = new System.Drawing.Point(68, 26);
-            this.ConvertOptions.Name = "ConvertOptions";
-            this.ConvertOptions.Size = new System.Drawing.Size(112, 21);
-            this.ConvertOptions.TabIndex = 4;
+            this.convertOptions.Location = new System.Drawing.Point(68, 26);
+            this.convertOptions.Name = "convertOptions";
+            this.convertOptions.Size = new System.Drawing.Size(112, 21);
+            this.convertOptions.TabIndex = 4;
             // 
             // label3
             // 
@@ -99,6 +99,7 @@
             this.backgroundWorker1.WorkerSupportsCancellation = true;
             this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
             this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
+            this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
             // 
             // cancel
             // 
@@ -118,8 +119,8 @@
             this.ClientSize = new System.Drawing.Size(284, 158);
             this.Controls.Add(this.cancel);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this.ConvertOptions);
-            this.Controls.Add(this.label2);
+            this.Controls.Add(this.convertOptions);
+            this.Controls.Add(this.infoLabel);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.label1);
@@ -139,8 +140,8 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.ComboBox ConvertOptions;
+        private System.Windows.Forms.Label infoLabel;
+        private System.Windows.Forms.ComboBox convertOptions;
         private System.Windows.Forms.Label label3;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private System.Windows.Forms.Button cancel;
