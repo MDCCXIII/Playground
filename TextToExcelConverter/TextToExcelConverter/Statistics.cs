@@ -5,13 +5,13 @@ namespace TextToExcelConverter
 {
     class Statistics
     {
-        public static Dictionary<string, int> lastRowColumnFoundIn = new Dictionary<string, int>();
-        public static Dictionary<string, int> timesSeenInRow = new Dictionary<string, int>();
+        Dictionary<string, int> lastRowColumnFoundIn = new Dictionary<string, int>();
+        Dictionary<string, int> timesSeenInRow = new Dictionary<string, int>();
 
-        public static Dictionary<string, int> fieldSeenTotal = new Dictionary<string, int>();
-        public static Dictionary<string, int> fieldNullCount = new Dictionary<string, int>();
+        Dictionary<string, int> fieldSeenTotal = new Dictionary<string, int>();
+        Dictionary<string, int> fieldNullCount = new Dictionary<string, int>();
 
-        public static void GenerateStatistics(ref int rowNumber, string line)
+        public void GenerateStatistics(ref int rowNumber, string line, InstanceConverter ic)
         {
             if (line.ToLower().Contains("(")) {
                 rowNumber++;
@@ -19,41 +19,41 @@ namespace TextToExcelConverter
                 return;
             }
             if (line.Contains("=")) {
-                Count(rowNumber, line);
+                Count(rowNumber, line, ic);
             }
         }
 
-        public static void OutputToExcel()
+        public void OutputToExcel(InstanceConverter ic)
         {
             int i = 1;
-            Form1.rng = (Excel.Range)Form1.wb.ActiveSheet.Cells[i, 1];
-            Form1.rng.Value = "Parameter Name";
-            Form1.rng = (Excel.Range)Form1.wb.ActiveSheet.Cells[i, 2];
-            Form1.rng.Value = "# of times Parameter called";
-            Form1.rng = (Excel.Range)Form1.wb.ActiveSheet.Cells[i, 3];
-            Form1.rng.Value = "# of times Parameter null or empty";
-            Form1.rng = (Excel.Range)Form1.wb.ActiveSheet.Cells[i, 4];
-            Form1.rng.Value = "Usage Percentage";
+            ic.rng = (Excel.Range)ic.wb.ActiveSheet.Cells[i, 1];
+            ic.rng.Value = "Parameter Name";
+            ic.rng = (Excel.Range)ic.wb.ActiveSheet.Cells[i, 2];
+            ic.rng.Value = "# of times Parameter called";
+            ic.rng = (Excel.Range)ic.wb.ActiveSheet.Cells[i, 3];
+            ic.rng.Value = "# of times Parameter null or empty";
+            ic.rng = (Excel.Range)ic.wb.ActiveSheet.Cells[i, 4];
+            ic.rng.Value = "Usage Percentage";
             foreach (string key in fieldSeenTotal.Keys) {
                 i++;
-                Form1.rng = (Excel.Range)Form1.wb.ActiveSheet.Cells[i, 1];
-                Form1.rng.Value = key + ":";
-                Form1.rng = (Excel.Range)Form1.wb.ActiveSheet.Cells[i, 2];
-                Form1.rng.Value = fieldSeenTotal[key];
-                Form1.rng = (Excel.Range)Form1.wb.ActiveSheet.Cells[i, 3];
-                Form1.rng.Value = fieldNullCount[key];
-                Form1.rng = (Excel.Range)Form1.wb.ActiveSheet.Cells[i, 4];
+                ic.rng = (Excel.Range)ic.wb.ActiveSheet.Cells[i, 1];
+                ic.rng.Value = key + ":";
+                ic.rng = (Excel.Range)ic.wb.ActiveSheet.Cells[i, 2];
+                ic.rng.Value = fieldSeenTotal[key];
+                ic.rng = (Excel.Range)ic.wb.ActiveSheet.Cells[i, 3];
+                ic.rng.Value = fieldNullCount[key];
+                ic.rng = (Excel.Range)ic.wb.ActiveSheet.Cells[i, 4];
                 double totalseen = fieldSeenTotal[key];
                 double nullcount = fieldNullCount[key];
-                Form1.rng.Value = "%" + (int)(((totalseen - nullcount) / totalseen) * 100);
+                ic.rng.Value = "%" + (int)(((totalseen - nullcount) / totalseen) * 100);
             }
         }
 
-        private static void Count(int rowNumber, string line)
+        private void Count(int rowNumber, string line, InstanceConverter ic)
         {
             string field = line.Split('=')[0].Trim();
             string value = line.Split('=')[1].Trim();
-            field = getColumnName(field, rowNumber);
+            field = getColumnName(field, rowNumber, ic);
             AddField(field, rowNumber);
             
             fieldSeenTotal[field]++;
@@ -62,7 +62,7 @@ namespace TextToExcelConverter
             }
         }
 
-        private static void AddField(string field, int rowNum)
+        private void AddField(string field, int rowNum)
         {
             if (!fieldSeenTotal.ContainsKey(field)) {
                 fieldSeenTotal.Add(field, 0);
@@ -77,10 +77,10 @@ namespace TextToExcelConverter
             }
         }
 
-        private static string getColumnName(string fieldName, int rowNumber)
+        private string getColumnName(string fieldName, int rowNumber, InstanceConverter ic)
         {
             if (lastRowColumnFoundIn.ContainsKey(fieldName)) {
-                if (Form1.columns.ContainsKey(fieldName) && lastRowColumnFoundIn[fieldName] == rowNumber) {
+                if (ic.columns.ContainsKey(fieldName) && lastRowColumnFoundIn[fieldName] == rowNumber) {
                     if (!timesSeenInRow.ContainsKey(fieldName)) {
                         timesSeenInRow.Add(fieldName, 1);
                     }

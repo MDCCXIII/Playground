@@ -5,10 +5,13 @@ namespace TextToExcelConverter
 {
     class TextFileFormatter
     {
-        public static Dictionary<string, int> lastRowColumnFoundIn = new Dictionary<string, int>();
-        public static Dictionary<string, int> timesSeenInRow = new Dictionary<string, int>();
-        public static void formatText(ref int rowNumber, string line)
+        private Dictionary<string, int> lastRowColumnFoundIn = new Dictionary<string, int>();
+        private Dictionary<string, int> timesSeenInRow = new Dictionary<string, int>();
+
+        InstanceConverter ic;
+        public void formatText(ref int rowNumber, string line, InstanceConverter ic)
         {
+            this.ic = ic;
             CreateColumn("Id", rowNumber);
             CreateColumn("TimeStamp", rowNumber);
             if (line.ToLower().Contains("(")) {
@@ -33,10 +36,10 @@ namespace TextToExcelConverter
             }
         }
 
-        private static string getColumnName(string columnName, int rowNumber)
+        private string getColumnName(string columnName, int rowNumber)
         {
             if (lastRowColumnFoundIn.ContainsKey(columnName)) {
-                if (Form1.columns.ContainsKey(columnName) && lastRowColumnFoundIn[columnName] == rowNumber) {
+                if (ic.columns.ContainsKey(columnName) && lastRowColumnFoundIn[columnName] == rowNumber) {
                     if (!timesSeenInRow.ContainsKey(columnName)) {
                         timesSeenInRow.Add(columnName, 1);
                     }
@@ -48,18 +51,18 @@ namespace TextToExcelConverter
             return columnName;
         }
 
-        private static void AddValueToRow(string columnName, int rowNum, string columnValue)
+        private void AddValueToRow(string columnName, int rowNum, string columnValue)
         {
             CreateColumn(columnName, rowNum);
-            Form1.rng = (Excel.Range)Form1.wb.ActiveSheet.Cells[rowNum, Form1.columns[columnName]];
-            Form1.rng.Value = columnValue;
+            ic.rng = (Excel.Range)ic.wb.ActiveSheet.Cells[rowNum, ic.columns[columnName]];
+            ic.rng.Value = columnValue;
         }
 
-        private static void CreateColumn(string columnName, int rowNum)
+        private void CreateColumn(string columnName, int rowNum)
         {
-            if (!Form1.columns.ContainsKey(columnName)) {
-                Form1.columns.Add(columnName, Form1.columns.Count + 1);
-                Form1.ws.Cells[1, Form1.columns.Count] = columnName;
+            if (!ic.columns.ContainsKey(columnName)) {
+                ic.columns.Add(columnName, ic.columns.Count + 1);
+                ic.ws.Cells[1, ic.columns.Count] = columnName;
                 lastRowColumnFoundIn.Add(columnName, rowNum);
             }
         }

@@ -4,8 +4,10 @@ namespace TextToExcelConverter
 {
     class TimeLog
     {
-        public static void GenerateTimeLog(ref int rowNumber, string line)
+        InstanceConverter ic;
+        public void GenerateTimeLog(ref int rowNumber, string line, InstanceConverter ic)
         {
+            this.ic = ic;
             if (line.StartsWith("),")) {
                 rowNumber++;
                 string temp = line.Replace('(', ' ').Replace(')', ' ').Replace(',', ' ').Trim();
@@ -17,18 +19,18 @@ namespace TextToExcelConverter
             }
         }
 
-        private static void AddValueToRow(string columnName, int rowNum, string columnValue)
+        private void AddValueToRow(string columnName, int rowNum, string columnValue)
         {
             CreateColumn(columnName, rowNum);
-            Form1.rng = (Excel.Range)Form1.wb.ActiveSheet.Cells[rowNum, Form1.columns[columnName]];
-            Form1.rng.Value = columnValue;
+            ic.rng = (Excel.Range)ic.wb.ActiveSheet.Cells[rowNum, ic.columns[columnName]];
+            ic.rng.Value = columnValue;
         }
 
-        private static void CreateColumn(string columnName, int rowNum)
+        private void CreateColumn(string columnName, int rowNum)
         {
-            if (!Form1.columns.ContainsKey(columnName)) {
-                Form1.columns.Add(columnName, Form1.columns.Count + 1);
-                Form1.ws.Cells[1, Form1.columns.Count] = columnName;
+            if (!ic.columns.ContainsKey(columnName)) {
+                ic.columns.Add(columnName, ic.columns.Count + 1);
+                ic.ws.Cells[1, ic.columns.Count] = columnName;
             }
         }
     }
