@@ -242,6 +242,10 @@ namespace TextToExcelConverter
             string newLine;
             string previousLine = null;
             Form1.setInfoLabelText("Generating Time Logs for File: " + fileName + ".txt");
+            rng = (Excel.Range)wb.ActiveSheet.Cells[1, 1];
+            rng.Value = "Service Call #";
+            rng = (Excel.Range)wb.ActiveSheet.Cells[1, 2];
+            rng.Value = "Date Time";
             foreach (string line in file) {
                 if (!CancellationPending()) {
                     if (previousLine != null) {
