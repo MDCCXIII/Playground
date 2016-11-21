@@ -21,34 +21,29 @@ namespace TextToExcelConverter
         int totalLines = 0;
         List<string> file = new List<string>();
         Form1 Form1;
+        ConvertingFile cf;
         bool cancel = false;
 
-        public InstanceConverter(DragEventArgs e, Form1 Form1, System.ComponentModel.DoWorkEventArgs dwea)
+        public InstanceConverter(string file, Form1 Form1, ConvertingFile cf, System.ComponentModel.DoWorkEventArgs dwea)
         {
             try {
                 this.Form1 = Form1;
+                this.cf = cf;
                 Init();
-                if (e.Data.GetDataPresent(DataFormats.FileDrop)) {
-                    string[] filePaths = (string[])(e.Data.GetData(DataFormats.FileDrop));
-                    foreach (string filePath in filePaths) {
-                        if (!CancellationPending()) {
-                            if (Exists(filePath)) {
-                                CreateNewWorkBook();
-                                SetFilePath(filePath);
-                                if (IsTextFile(filePath)) {
-                                    SetFileName(filePath);
-                                    if (!IsFileinUse(Directory.GetCurrentDirectory() + "\\" + fileName + ".xlsx")) {
-                                        if (!CancellationPending()) {
-                                            SetTotalLines();
-                                        }
-                                        if (!CancellationPending()) {
-                                            ParseFile();
-                                        }
-                                        if (!CancellationPending()) {
-                                            ConvertFile();
-                                        }
-                                    }
-                                }
+                if (!CancellationPending()) {
+                    if (Exists(file)) {
+                        CreateNewWorkBook();
+                        SetFilePath(file);
+                        SetFileName(file);
+                        if (!IsFileinUse(Directory.GetCurrentDirectory() + "\\" + fileName + ".xlsx")) {
+                            if (!CancellationPending()) {
+                                SetTotalLines();
+                            }
+                            if (!CancellationPending()) {
+                                ParseFile();
+                            }
+                            if (!CancellationPending()) {
+                                ConvertFile();
                             }
                         }
                     }
@@ -61,9 +56,9 @@ namespace TextToExcelConverter
 
         private bool CancellationPending()
         {
-             Form1.GetCancellationPending();
+            cf.GetCancellationPending();
             if (!cancel) {
-                cancel = Form1.GetCancellationPending();
+                cancel = cf.GetCancellationPending();
             }
             return cancel;
         }
@@ -72,17 +67,16 @@ namespace TextToExcelConverter
         {
             xlApp = new Excel.Application();
             if (xlApp == null) {
-                Console.WriteLine("EXCEL could not be started. Check that your office installation and project references are correct.");
+                MessageBox.Show("EXCEL could not be started. Check that your office installation and project references are correct.");
                 return;
             }
             wb = null;
             ws = null;
             rng = null;
-            filePath = "";
             fileName = "";
             columns.Clear();
             totalLines = 0;
-            Form1.SetProgressBarValue(0);
+            cf.SetProgressBarValue(0);
         }
 
         private static bool Exists(string filePath)
@@ -98,11 +92,6 @@ namespace TextToExcelConverter
         private void SetFilePath(string filePath)
         {
             this.filePath = filePath;
-        }
-
-        private bool IsTextFile(string filePath)
-        {
-            return filePath.EndsWith(".txt");
         }
 
         protected virtual bool IsFileinUse(string file)
@@ -156,22 +145,22 @@ namespace TextToExcelConverter
         {
             if (file.Count > 0) {
                 if (!CancellationPending()) {
-                    if (Form1.GetConversionOptionSelectedIndex() == 0 || Form1.GetConversionOptionSelectedIndex() == 1) {
-                        Form1.SetProgressBarValue(0);
+                    if (cf.GetConversionOptionSelectedIndex() == 0 || cf.GetConversionOptionSelectedIndex() == 1) {
+                        cf.SetProgressBarValue(0);
                         CreateOrActivatWorkSheet("Data");
                         TextToExcel();
                     }
                 }
                 if (!CancellationPending()) {
-                    if (Form1.GetConversionOptionSelectedIndex() == 0 || Form1.GetConversionOptionSelectedIndex() == 2) {
-                        Form1.SetProgressBarValue(0);
+                    if (cf.GetConversionOptionSelectedIndex() == 0 || cf.GetConversionOptionSelectedIndex() == 2) {
+                        cf.SetProgressBarValue(0);
                         CreateOrActivatWorkSheet("Usage Statistics");
                         FieldUsage();
 
                     }
                 }
                 if (!CancellationPending()) {
-                    Form1.SetProgressBarValue(0);
+                    cf.SetProgressBarValue(0);
                     CreateOrActivatWorkSheet("Service Call Time Log");
                     TimeLogs();
                 }
@@ -198,7 +187,7 @@ namespace TextToExcelConverter
             int rowNumber = 1;
             int lineNumber = 0;
             string newLine;
-            Form1.setInfoLabelText("Converting Data for File: " + fileName + ".txt");
+            cf.setInfoLabelText("Converting Data for File: " + fileName + ".txt");
             foreach (string line in file) {
                 if (!CancellationPending()) {
                     lineNumber++;
@@ -218,7 +207,7 @@ namespace TextToExcelConverter
             int lineNumber = 0;
             string newLine;
             string previousLine = null;
-            Form1.setInfoLabelText("Generating Usage Statistics for File: " + fileName + ".txt");
+            cf.setInfoLabelText("Generating Usage Statistics for File: " + fileName + ".txt");
             foreach (string line in file) {
                 if (!CancellationPending()) {
                     if (previousLine != null) {
@@ -241,7 +230,7 @@ namespace TextToExcelConverter
             int lineNumber = 0;
             string newLine;
             string previousLine = null;
-            Form1.setInfoLabelText("Generating Time Logs for File: " + fileName + ".txt");
+            cf.setInfoLabelText("Generating Time Logs for File: " + fileName + ".txt");
             rng = (Excel.Range)wb.ActiveSheet.Cells[1, 1];
             rng.Value = "Service Call #";
             rng = (Excel.Range)wb.ActiveSheet.Cells[1, 2];
@@ -279,11 +268,11 @@ namespace TextToExcelConverter
                     }
                 } while (failed && attempt > 3);
                 if (failed) {
-                    Form1.SetProgressBarValue(0);
-                    Form1.setInfoLabelText("Failed to save the converted file.");
+                    cf.SetProgressBarValue(0);
+                    cf.setInfoLabelText("Failed to save the converted file.");
                 } else {
-                    Form1.SetProgressBarValue(100);
-                    Form1.setInfoLabelText("Conversion Complete");
+                    cf.SetProgressBarValue(100);
+                    cf.setInfoLabelText("Conversion Complete.");
                 }
             }
             if (!CancellationPending()) {
@@ -318,7 +307,7 @@ namespace TextToExcelConverter
         {
             int posistion = (int)Math.Round(progress);
             if (posistion <= 100) {
-                Form1.SetProgressBarValue(posistion);
+                cf.SetProgressBarValue(posistion);
             }
 
         }

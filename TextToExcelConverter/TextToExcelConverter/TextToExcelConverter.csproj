@@ -62,6 +62,7 @@
     <Compile Include="AAI log Converter.Designer.cs">
       <DependentUpon>AAI log Converter.cs</DependentUpon>
     </Compile>
+    <Compile Include="ConvertingFile.cs" />
     <Compile Include="InstanceConverter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
