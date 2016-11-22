@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
 
@@ -56,7 +57,7 @@ namespace TextToExcelConverter
 
         private bool CancellationPending()
         {
-            cf.GetCancellationPending();
+            cf._pauseEvent.WaitOne(Timeout.Infinite);
             if (!cancel) {
                 cancel = cf.GetCancellationPending();
             }

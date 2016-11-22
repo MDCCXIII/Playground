@@ -24,7 +24,7 @@ namespace TextToExcelConverter
         public Button StartPause_Button = new Button();
         public Label InfoLabel = new Label();
         BackgroundWorker bw = new BackgroundWorker();
-        ManualResetEvent _pauseEvent = new ManualResetEvent(true);
+        public ManualResetEvent _pauseEvent = new ManualResetEvent(true);
         InstanceConverter ic = null;
         public ComboBox convertOptions;
 
@@ -153,7 +153,7 @@ namespace TextToExcelConverter
             InfoLabel.Width = 350;
             InfoLabel.Anchor = AnchorStyles.Left;
             InfoLabel.AutoSize = false;
-            InfoLabel.AutoEllipsis = false;
+            InfoLabel.AutoEllipsis = true;
         }
 
         private void NewStartPause_Button()
@@ -163,6 +163,7 @@ namespace TextToExcelConverter
             StartPause_Button.AutoSize = true;
             StartPause_Button.UseVisualStyleBackColor = true;
             StartPause_Button.Click += new EventHandler(startConversion_Click);
+            StartPause_Button.Anchor = AnchorStyles.Left;
         }
 
         private void NewCancelButton()
@@ -172,6 +173,7 @@ namespace TextToExcelConverter
             Cancel_Button.AutoSize = true;
             Cancel_Button.UseVisualStyleBackColor = true;
             Cancel_Button.Click += new EventHandler(cancel_Click);
+            Cancel_Button.Anchor = AnchorStyles.Left;
         }
 
         private void NewFilePathLabel(string filePath)
@@ -188,6 +190,7 @@ namespace TextToExcelConverter
         {
             pb = new ProgressBar();
             pb.Size = new System.Drawing.Size(200, 23);
+            pb.Anchor = AnchorStyles.Left;
         }
 
         private void cancel_Click(object sender, EventArgs e)
@@ -203,8 +206,7 @@ namespace TextToExcelConverter
         private void startConversion_Click(object sender, EventArgs e)
         {
             if (StartPause_Button.Text.Equals(beginConversionText)) {
-                bw.RunWorkerAsync();
-                StartPause_Button.Text = pauseText;
+                StartProccess();
             } else if (StartPause_Button.Text.Equals(pauseText)) {
                 Pause();
                 StartPause_Button.Text = resumeText;
@@ -212,6 +214,12 @@ namespace TextToExcelConverter
                 Resume();
                 StartPause_Button.Text = pauseText;
             }
+        }
+
+        public void StartProccess()
+        {
+            bw.RunWorkerAsync();
+            StartPause_Button.Text = pauseText;
         }
 
         private void Pause()
